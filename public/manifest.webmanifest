@@ -1,0 +1,19 @@
+{
+  "name": "멍멍 대소동!",
+  "short_name": "멍멍!",
+  "description": "몽실이와 꽃밭을 달리는 귀여운 모바일 액션 게임",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff7d9",
+  "theme_color": "#ffd8e8",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
