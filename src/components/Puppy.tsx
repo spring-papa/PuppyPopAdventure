@@ -38,6 +38,8 @@ export default function Puppy({
   const wingItem = items.find((item) => wingItems.has(item));
   const scarfItem = items.find((item) => scarfItems.has(item));
   const glassesItem = items.find((item) => glassesItems.has(item));
+  const feetItem = items.find((item) => CUSTOM_ITEMS.find((customItem) => customItem.id === item)?.slot === 'feet');
+  const rideItem = items.find((item) => CUSTOM_ITEMS.find((customItem) => customItem.id === item)?.slot === 'ride');
 
   return (
     <div
@@ -51,6 +53,7 @@ export default function Puppy({
       ].join(' ')}
       aria-label="강아지 몽실이"
     >
+      {rideItem && <span className={`puppy-ride ride-${rideItem}`}><i /><b /></span>}
       {capeItem && <span className={`puppy-cape cape-${capeItem}`} />}
       {wingItem && <span className={`puppy-wings wings-${wingItem}`} />}
       <span className="puppy-tail" />
@@ -68,6 +71,7 @@ export default function Puppy({
       </span>
       <span className="puppy-leg puppy-leg-left" />
       <span className="puppy-leg puppy-leg-right" />
+      {feetItem && <><span className={`puppy-shoe shoe-left shoe-${feetItem}`} /><span className={`puppy-shoe shoe-right shoe-${feetItem}`} /></>}
       {equipped.has('red-ribbon') && <span className="deco deco-ribbon" />}
       {equipped.has('strawberry-ribbon') && <span className="deco deco-strawberry">●</span>}
       {equipped.has('heart-necklace') && <span className="deco deco-necklace">♥</span>}

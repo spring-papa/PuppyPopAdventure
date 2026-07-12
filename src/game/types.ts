@@ -2,7 +2,7 @@ export type Screen = 'start' | 'login' | 'settings' | 'stage-select' | 'math-gat
 
 export type CustomItemId = string;
 
-export type CustomSlot = 'none' | 'head' | 'neck' | 'back' | 'scarf' | 'eyes' | 'tail' | 'aura' | 'badge';
+export type CustomSlot = 'none' | 'head' | 'neck' | 'back' | 'scarf' | 'eyes' | 'tail' | 'aura' | 'badge' | 'feet' | 'ride';
 
 export type CollectibleType = 'bone' | 'heart' | 'ribbon-box';
 
@@ -50,6 +50,7 @@ export type StageTheme = {
 
 export type StageData = {
   id: number;
+  mode: 'adventure' | 'delivery' | 'balloon';
   theme: StageTheme;
   platforms: Rect[];
   collectibles: Collectible[];

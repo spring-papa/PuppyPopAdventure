@@ -19,16 +19,26 @@ const themes: StageTheme[] = [
   { id: 'picnic', name: '피크닉 공원', label: '8-피크닉', sky: '#c7eeff', ground: '#b9ec92', hillA: '#ffe6a6', hillB: '#ffc4d8', platform: 'grass', decor: 'heart' },
   { id: 'rainbow', name: '무지개 다리', label: '9-무지개', sky: '#d9f2ff', ground: '#c5f0bb', hillA: '#ffd1e8', hillB: '#bde9ff', platform: 'cloud', decor: 'rainbow' },
   { id: 'festival', name: '멍멍 축제길', label: '10-축제', sky: '#fff0bd', ground: '#b5ed9a', hillA: '#ffb8d1', hillB: '#b9dfff', platform: 'candy', decor: 'confetti' },
-  { id: 'pond', name: '연못 징검길', label: '11-연못', sky: '#bfefff', ground: '#8fd9c6', hillA: '#a8e6d7', hillB: '#c9f3ff', platform: 'cloud', decor: 'bubble' },
-  { id: 'bakery', name: '빵집 골목', label: '12-빵집', sky: '#ffe4d1', ground: '#e7c26f', hillA: '#ffd6aa', hillB: '#fff0ba', platform: 'cream', decor: 'bone' },
-  { id: 'garden', name: '비밀 정원', label: '13-정원', sky: '#d9f9ef', ground: '#86dd8d', hillA: '#b8f2a4', hillB: '#ffd7e8', platform: 'grass', decor: 'clover' },
-  { id: 'cloud', name: '구름 퐁퐁길', label: '14-구름', sky: '#dff6ff', ground: '#b9e9ff', hillA: '#f6fdff', hillB: '#d7e9ff', platform: 'cloud', decor: 'star' },
-  { id: 'market', name: '간식 시장길', label: '15-시장', sky: '#fff1cb', ground: '#f2cf8f', hillA: '#ffd5b7', hillB: '#c8edff', platform: 'candy', decor: 'heart' },
-  { id: 'meadow', name: '민들레 초원', label: '16-초원', sky: '#c9f2ff', ground: '#a9e878', hillA: '#d6f5a3', hillB: '#fff0a5', platform: 'grass', decor: 'flower' },
-  { id: 'toy', name: '장난감 마당', label: '17-장난감', sky: '#f1e4ff', ground: '#bce8ff', hillA: '#ffc8e8', hillB: '#fff3a8', platform: 'candy', decor: 'confetti' },
-  { id: 'night', name: '달빛 산책길', label: '18-달빛', sky: '#cfc8ff', ground: '#9ddbc3', hillA: '#b9b0ff', hillB: '#dfe2ff', platform: 'cloud', decor: 'star' },
-  { id: 'bridge', name: '리본 다리길', label: '19-다리', sky: '#ffe6f5', ground: '#afe4d7', hillA: '#ffc8dd', hillB: '#aee9ff', platform: 'cream', decor: 'ribbon' },
-  { id: 'party', name: '왕관 축하길', label: '20-왕관', sky: '#fff0c5', ground: '#aae982', hillA: '#ffbed6', hillB: '#c5dcff', platform: 'candy', decor: 'rainbow' },
+  { id: 'pond', name: '꽃길 배달', label: '11-꽃길', sky: '#bfefff', ground: '#8fd9c6', hillA: '#a8e6d7', hillB: '#c9f3ff', platform: 'cloud', decor: 'flower' },
+  { id: 'bakery', name: '쿠키 마을 배달', label: '12-쿠키', sky: '#ffe4d1', ground: '#e7c26f', hillA: '#ffd6aa', hillB: '#fff0ba', platform: 'cream', decor: 'bone' },
+  { id: 'garden', name: '비밀 정원 배달', label: '13-정원', sky: '#d9f9ef', ground: '#86dd8d', hillA: '#b8f2a4', hillB: '#ffd7e8', platform: 'grass', decor: 'clover' },
+  { id: 'cloud', name: '구름 마을 배달', label: '14-구름', sky: '#dff6ff', ground: '#b9e9ff', hillA: '#f6fdff', hillB: '#d7e9ff', platform: 'cloud', decor: 'star' },
+  { id: 'market', name: '간식 시장 배달', label: '15-시장', sky: '#fff1cb', ground: '#f2cf8f', hillA: '#ffd5b7', hillB: '#c8edff', platform: 'candy', decor: 'heart' },
+  { id: 'meadow', name: '민들레길 배달', label: '16-초원', sky: '#c9f2ff', ground: '#a9e878', hillA: '#d6f5a3', hillB: '#fff0a5', platform: 'grass', decor: 'flower' },
+  { id: 'toy', name: '장난감 마을 배달', label: '17-장난감', sky: '#f1e4ff', ground: '#bce8ff', hillA: '#ffc8e8', hillB: '#fff3a8', platform: 'candy', decor: 'confetti' },
+  { id: 'night', name: '밤하늘 배달', label: '18-별빛', sky: '#cfc8ff', ground: '#9ddbc3', hillA: '#b9b0ff', hillB: '#dfe2ff', platform: 'cloud', decor: 'star' },
+  { id: 'bridge', name: '리본 다리 배달', label: '19-리본', sky: '#ffe6f5', ground: '#afe4d7', hillA: '#ffc8dd', hillB: '#aee9ff', platform: 'cream', decor: 'ribbon' },
+  { id: 'party', name: '축제날 특별 배달', label: '20-축제', sky: '#fff0c5', ground: '#aae982', hillA: '#ffbed6', hillB: '#c5dcff', platform: 'candy', decor: 'rainbow' },
+  { id: 'cloud-play', name: '구름 놀이터', label: '21-구름', sky: '#ccefff', ground: '#d9f7ff', hillA: '#fff', hillB: '#d9d2ff', platform: 'cloud', decor: 'star' },
+  { id: 'balloon-fest', name: '풍선 축제', label: '22-풍선', sky: '#ffe2f1', ground: '#d9f7ff', hillA: '#ffd0e5', hillB: '#ccecff', platform: 'cloud', decor: 'confetti' },
+  { id: 'star-sky', name: '별빛 하늘', label: '23-별빛', sky: '#aaa7eb', ground: '#c8d6ff', hillA: '#8f8bd4', hillB: '#e7d9ff', platform: 'cloud', decor: 'star' },
+  { id: 'rainbow-sky', name: '무지개 구름길', label: '24-무지개', sky: '#ccefff', ground: '#e5f8ff', hillA: '#ffd5e9', hillB: '#fff0ad', platform: 'cloud', decor: 'rainbow' },
+  { id: 'toy-rescue', name: '장난감 구조대', label: '25-구조', sky: '#d9efff', ground: '#dff9ff', hillA: '#c9d9ff', hillB: '#ffd6e9', platform: 'cloud', decor: 'heart' },
+  { id: 'sunset-air', name: '노을빛 비행', label: '26-노을', sky: '#ffd4c2', ground: '#ffe8d8', hillA: '#ffb8c8', hillB: '#ffe59e', platform: 'cloud', decor: 'ribbon' },
+  { id: 'bubble-air', name: '방울방울 하늘', label: '27-방울', sky: '#c9f5ff', ground: '#e4fbff', hillA: '#c4e7ff', hillB: '#e9d9ff', platform: 'cloud', decor: 'bubble' },
+  { id: 'moon-air', name: '달빛 풍선길', label: '28-달빛', sky: '#9e9bdb', ground: '#ccd4f7', hillA: '#8582c2', hillB: '#d9ccff', platform: 'cloud', decor: 'star' },
+  { id: 'candy-air', name: '솜사탕 하늘', label: '29-솜사탕', sky: '#ffdff0', ground: '#e8f8ff', hillA: '#ffc7e0', hillB: '#d8ccff', platform: 'cloud', decor: 'heart' },
+  { id: 'friend-air', name: '친구를 찾아서', label: '30-친구', sky: '#cdefff', ground: '#def7e5', hillA: '#fff0ad', hillB: '#ffd1e7', platform: 'cloud', decor: 'rainbow' },
 ];
 
 const groundPatterns = [
@@ -148,12 +158,17 @@ const makeObstacles = (stage: number): Obstacle[] => {
   return sets[pattern];
 };
 
-export const stages: StageData[] = Array.from({ length: 20 }, (_, index) => {
+export const stages: StageData[] = Array.from({ length: 30 }, (_, index) => {
   const id = index + 1;
-  const platforms = makePlatforms(id);
+  const modeIndex = index % 3;
+  const themeIndex = modeIndex * 10 + Math.floor(index / 3);
+  const mode = modeIndex === 0 ? 'adventure' : modeIndex === 1 ? 'delivery' : 'balloon';
+  const theme = themes[themeIndex];
+  const platforms = makePlatforms(Math.floor(index / 3) + 1);
   return {
     id,
-    theme: { ...themes[index], label: `${id}-${themes[index].label.split('-')[1]}` },
+    mode,
+    theme: { ...theme, label: `${id}-${theme.label.split('-')[1]}` },
     platforms,
     collectibles: makeCollectibles(id, platforms),
     obstacles: makeObstacles(id),

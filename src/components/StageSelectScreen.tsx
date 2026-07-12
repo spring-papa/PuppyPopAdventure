@@ -41,7 +41,7 @@ export default function StageSelectScreen({
               <span className="stage-number">{stage.id}</span>
               <span className="stage-card-text">
                 <strong>{stage.theme.name}</strong>
-                <small>{unlocked ? '출발하기' : '잠겨 있어요'}</small>
+                <small>{unlocked ? `${stage.mode === 'adventure' ? '점프 모험' : stage.mode === 'delivery' ? '간식 배달' : '풍선 구조'} · 출발하기` : '잠겨 있어요'}</small>
               </span>
               <span className="stage-lock">{unlocked ? '▶' : '🔒'}</span>
             </button>

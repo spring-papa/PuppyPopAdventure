@@ -53,6 +53,14 @@ export const CUSTOM_ITEMS: Array<{
   { id: 'sparkle-aura', name: '반짝 오라', icon: '✧', slot: 'aura', lockedLabel: '리본 상자' },
   { id: 'party-hat', name: '파티 모자', icon: '△', slot: 'head', lockedLabel: '리본 상자' },
   { id: 'cherry-pin', name: '체리 핀', icon: '🍒', slot: 'head', lockedLabel: '리본 상자' },
+  { id: 'pink-sneakers', name: '분홍 운동화', icon: '👟', slot: 'feet', lockedLabel: '스테이지 보상' },
+  { id: 'rain-boots', name: '노랑 장화', icon: '👢', slot: 'feet', lockedLabel: '스테이지 보상' },
+  { id: 'star-shoes', name: '별빛 신발', icon: '✨', slot: 'feet', lockedLabel: '스테이지 보상' },
+  { id: 'roller-skates', name: '롤러스케이트', icon: '🛼', slot: 'feet', lockedLabel: '스테이지 보상' },
+  { id: 'cookie-skateboard', name: '쿠키 스케이트보드', icon: '🛹', slot: 'ride', lockedLabel: '배달 스탬프' },
+  { id: 'rainbow-skateboard', name: '무지개 스케이트보드', icon: '🌈', slot: 'ride', lockedLabel: '배달 스탬프' },
+  { id: 'cloud-board', name: '구름 보드', icon: '☁️', slot: 'ride', lockedLabel: '친구 강아지 카드' },
+  { id: 'star-hoverboard', name: '별빛 호버보드', icon: '🌟', slot: 'ride', lockedLabel: '친구 강아지 카드' },
 ];
 
 export const INITIAL_UNLOCKED: CustomItemId[] = ['none', 'red-ribbon', 'heart-necklace', 'star-pin', 'blue-bow', 'flower-pin', 'bone-badge', 'mint-scarf'];

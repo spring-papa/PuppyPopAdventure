@@ -3,6 +3,8 @@ import ClearScreen from './components/ClearScreen';
 import CustomizeScreen from './components/CustomizeScreen';
 import FailScreen from './components/FailScreen';
 import GameScreen from './components/GameScreen';
+import DeliveryGameScreen from './components/DeliveryGameScreen';
+import BalloonGameScreen from './components/BalloonGameScreen';
 import LoginScreen from './components/LoginScreen';
 import MultiplicationGateScreen from './components/MultiplicationGateScreen';
 import SettingsScreen from './components/SettingsScreen';
@@ -316,7 +318,7 @@ export default function App() {
             onPlay={startGame}
           />
         )}
-        {screen === 'game' && (
+        {screen === 'game' && getStage(stageIndex).mode === 'adventure' && (
           <GameScreen
             key={stageIndex}
             equippedItems={equippedSafe}
@@ -326,6 +328,12 @@ export default function App() {
             onFail={handleFail}
             onHome={() => setScreen('start')}
           />
+        )}
+        {screen === 'game' && getStage(stageIndex).mode === 'delivery' && (
+          <DeliveryGameScreen key={stageIndex} equippedItems={equippedSafe} stage={getStage(stageIndex)} bestSnacks={bestSnacks} onClear={handleClear} onFail={handleFail} onHome={() => setScreen('start')} />
+        )}
+        {screen === 'game' && getStage(stageIndex).mode === 'balloon' && (
+          <BalloonGameScreen key={stageIndex} equippedItems={equippedSafe} stage={getStage(stageIndex)} bestSnacks={bestSnacks} onClear={handleClear} onFail={handleFail} onHome={() => setScreen('start')} />
         )}
         {screen === 'clear' && (
           <ClearScreen result={lastResult} stage={getStage(stageIndex)} onReplay={replayStage} onNext={nextStage} onCustomize={() => setScreen('customize')} />
