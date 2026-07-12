@@ -37,6 +37,8 @@ export default function GameScreen({
   const game = useGameLoop({ controlsRef, stage, bestSnacks, onClear, onFail });
 
   const setControl = useCallback((key: 'left' | 'right' | 'jump' | 'dash', active: boolean) => {
+    if (controlsRef.current[key] === active) return;
+
     if (active && key === 'jump') {
       game.requestJump();
     }

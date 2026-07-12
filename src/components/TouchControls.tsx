@@ -1,8 +1,9 @@
 import type { ControlsState } from '../game/types';
 
 type ControlButtonKey = 'left' | 'right' | 'jump' | 'dash';
+type ControlButton = { key: ControlButtonKey; label: string; icon: string; side: 'left' | 'right' };
 
-const buttons: Array<{ key: ControlButtonKey; label: string; icon: string; side: 'left' | 'right' }> = [
+const buttons: ControlButton[] = [
   { key: 'left', label: '왼쪽', icon: '‹', side: 'left' },
   { key: 'right', label: '오른쪽', icon: '›', side: 'left' },
   { key: 'jump', label: '점프', icon: '↟', side: 'right' },
@@ -24,22 +25,27 @@ export default function TouchControls({
     setControl(key, false);
   };
 
-  const renderButton = (button: (typeof buttons)[number]) => (
+  const renderButton = (button: ControlButton) => (
     <button
       key={button.key}
       type="button"
       data-control={button.key}
       className={`control-button ${controls[button.key] ? 'pressed' : ''}`}
       aria-label={button.label}
-      onPointerDown={() => press(button.key)}
-      onPointerUp={() => release(button.key)}
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        press(button.key);
+      }}
+      onPointerUp={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+          event.currentTarget.releasePointerCapture(event.pointerId);
+        }
+        release(button.key);
+      }}
       onPointerCancel={() => release(button.key)}
-      onPointerLeave={() => release(button.key)}
-      onMouseDown={() => press(button.key)}
-      onMouseUp={() => release(button.key)}
-      onTouchStart={() => press(button.key)}
-      onTouchEnd={() => release(button.key)}
+      onLostPointerCapture={() => release(button.key)}
       onClick={(event) => {
+        event.preventDefault();
         if (!isActionButton(button.key)) return;
         press(button.key);
         window.setTimeout(() => release(button.key), 100);
