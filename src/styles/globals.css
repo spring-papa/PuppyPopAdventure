@@ -1799,11 +1799,11 @@ h2 {
 }
 
 .digit-button[data-digit='0'] {
-  grid-column: span 1;
+  grid-column: span 2;
 }
 
 .digit-button.cancel {
-  grid-column: span 2;
+  grid-column: span 1;
   background: linear-gradient(#fff2f5, #ffd9e8);
   color: #9a4d6f;
 }
