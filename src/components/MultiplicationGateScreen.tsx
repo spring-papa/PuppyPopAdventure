@@ -28,13 +28,6 @@ export default function MultiplicationGateScreen({
   const slots = Array.from({ length: answerLength }, (_, index) => input[index] ?? '');
   const progressText = `${questionIndex + 1} / ${questions.length}`;
 
-  const resetGate = () => {
-    setRound((value) => value + 1);
-    setQuestionIndex(0);
-    setInput('');
-    setStatus('playing');
-  };
-
   const advanceQuestion = () => {
     if (questionIndex >= questions.length - 1) {
       setStatus('cleared');
@@ -49,6 +42,7 @@ export default function MultiplicationGateScreen({
 
   const pressDigit = (digit: number) => {
     if (status !== 'playing') return;
+    if (input.length >= answerLength) return;
     const nextInput = `${input}${digit}`.slice(0, answerLength);
     setInput(nextInput);
 
@@ -59,6 +53,18 @@ export default function MultiplicationGateScreen({
       return;
     }
     window.setTimeout(() => setStatus('failed'), 140);
+  };
+
+  const cancelInput = () => {
+    if (status !== 'playing' || input.length === 0 || input.length >= answerLength) return;
+    setInput((value) => value.slice(0, -1));
+  };
+
+  const resetGate = () => {
+    setRound((value) => value + 1);
+    setQuestionIndex(0);
+    setInput('');
+    setStatus('playing');
   };
 
   return (
@@ -121,6 +127,15 @@ export default function MultiplicationGateScreen({
                 {digit}
               </button>
             ))}
+            <button
+              type="button"
+              className="digit-button cancel"
+              onClick={cancelInput}
+              disabled={status !== 'playing' || input.length === 0 || input.length >= answerLength}
+              aria-label="입력 취소"
+            >
+              ⌫
+            </button>
           </div>
         )}
       </div>
