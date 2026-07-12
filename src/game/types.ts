@@ -1,4 +1,4 @@
-export type Screen = 'start' | 'stage-select' | 'math-gate' | 'game' | 'customize' | 'clear' | 'fail';
+export type Screen = 'start' | 'login' | 'settings' | 'stage-select' | 'math-gate' | 'game' | 'customize' | 'clear' | 'fail';
 
 export type CustomItemId = string;
 
@@ -70,6 +70,15 @@ export type GameSnapshot = {
   health: number;
   ribbonFound: boolean;
   bestSnacks: number;
+};
+
+export type PuppyProgress = {
+  schemaVersion: 1;
+  maxUnlockedStage: number;
+  unlockedItems: CustomItemId[];
+  equippedItems: CustomItemId[];
+  bestSnacks: number;
+  updatedAt: string;
 };
 
 export type PuppyState = Rect & {

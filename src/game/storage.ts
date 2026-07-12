@@ -1,12 +1,8 @@
 import { INITIAL_UNLOCKED } from './constants';
-import type { CustomItemId } from './types';
+import type { CustomItemId, PuppyProgress } from './types';
 
 const KEYS = {
-  unlocked: 'puppy-pop.unlockedItems',
-  selected: 'puppy-pop.selectedItem',
-  equipped: 'puppy-pop.equippedItems',
-  bestSnacks: 'puppy-pop.bestSnacks',
-  maxUnlockedStage: 'puppy-pop.maxUnlockedStage',
+  progress: 'puppy-pop.progress',
 };
 
 const readJson = <T,>(key: string, fallback: T): T => {
@@ -18,37 +14,57 @@ const readJson = <T,>(key: string, fallback: T): T => {
   }
 };
 
-export const loadUnlockedItems = () => readJson<CustomItemId[]>(KEYS.unlocked, INITIAL_UNLOCKED);
+const uniqueItems = (items: CustomItemId[]) => Array.from(new Set(items.filter(Boolean)));
 
-export const saveUnlockedItems = (items: CustomItemId[]) => {
-  localStorage.setItem(KEYS.unlocked, JSON.stringify(Array.from(new Set(items))));
+export const createDefaultProgress = (): PuppyProgress => ({
+  schemaVersion: 1,
+  maxUnlockedStage: 0,
+  unlockedItems: [...INITIAL_UNLOCKED],
+  equippedItems: ['red-ribbon'],
+  bestSnacks: 0,
+  updatedAt: new Date().toISOString(),
+});
+
+export const normalizeProgress = (progress: Partial<PuppyProgress> | null | undefined): PuppyProgress => {
+  const fallback = createDefaultProgress();
+  const unlockedItems = uniqueItems([...INITIAL_UNLOCKED, ...(Array.isArray(progress?.unlockedItems) ? progress.unlockedItems : [])]);
+  const equippedItems = uniqueItems(Array.isArray(progress?.equippedItems) ? progress.equippedItems : fallback.equippedItems).filter((item) =>
+    unlockedItems.includes(item),
+  );
+
+  return {
+    schemaVersion: 1,
+    maxUnlockedStage: Math.max(0, Number(progress?.maxUnlockedStage ?? fallback.maxUnlockedStage)),
+    unlockedItems,
+    equippedItems,
+    bestSnacks: Math.max(0, Number(progress?.bestSnacks ?? fallback.bestSnacks)),
+    updatedAt: progress?.updatedAt || fallback.updatedAt,
+  };
 };
 
-export const loadSelectedItem = () => (localStorage.getItem(KEYS.selected) as CustomItemId | null) ?? 'red-ribbon';
+export const loadProgress = () => normalizeProgress(readJson<Partial<PuppyProgress> | null>(KEYS.progress, null));
 
-export const saveSelectedItem = (item: CustomItemId) => {
-  localStorage.setItem(KEYS.selected, item);
+export const saveProgress = (progress: Partial<PuppyProgress>) => {
+  const normalized = normalizeProgress({
+    ...progress,
+    updatedAt: progress.updatedAt || new Date().toISOString(),
+  });
+  localStorage.setItem(KEYS.progress, JSON.stringify(normalized));
+  return normalized;
 };
 
-export const loadEquippedItems = () => {
-  const equipped = readJson<CustomItemId[] | null>(KEYS.equipped, null);
-  if (equipped) return equipped;
-  const selected = loadSelectedItem();
-  return selected === 'none' ? [] : [selected];
-};
+export const loadUnlockedItems = () => loadProgress().unlockedItems;
 
-export const saveEquippedItems = (items: CustomItemId[]) => {
-  localStorage.setItem(KEYS.equipped, JSON.stringify(Array.from(new Set(items))));
-};
+export const saveUnlockedItems = (items: CustomItemId[]) => saveProgress({ ...loadProgress(), unlockedItems: items });
 
-export const loadBestSnacks = () => Number(localStorage.getItem(KEYS.bestSnacks) ?? 0);
+export const loadEquippedItems = () => loadProgress().equippedItems;
 
-export const saveBestSnacks = (count: number) => {
-  localStorage.setItem(KEYS.bestSnacks, String(count));
-};
+export const saveEquippedItems = (items: CustomItemId[]) => saveProgress({ ...loadProgress(), equippedItems: items });
 
-export const loadMaxUnlockedStage = () => Math.max(0, Number(localStorage.getItem(KEYS.maxUnlockedStage) ?? 0));
+export const loadBestSnacks = () => loadProgress().bestSnacks;
 
-export const saveMaxUnlockedStage = (index: number) => {
-  localStorage.setItem(KEYS.maxUnlockedStage, String(Math.max(0, index)));
-};
+export const saveBestSnacks = (count: number) => saveProgress({ ...loadProgress(), bestSnacks: count });
+
+export const loadMaxUnlockedStage = () => loadProgress().maxUnlockedStage;
+
+export const saveMaxUnlockedStage = (index: number) => saveProgress({ ...loadProgress(), maxUnlockedStage: index });

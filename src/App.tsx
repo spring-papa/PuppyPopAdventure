@@ -1,37 +1,62 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ClearScreen from './components/ClearScreen';
 import CustomizeScreen from './components/CustomizeScreen';
 import FailScreen from './components/FailScreen';
 import GameScreen from './components/GameScreen';
+import LoginScreen from './components/LoginScreen';
 import MultiplicationGateScreen from './components/MultiplicationGateScreen';
+import SettingsScreen from './components/SettingsScreen';
 import StageSelectScreen from './components/StageSelectScreen';
 import StartScreen from './components/StartScreen';
 import { CUSTOM_ITEMS, INITIAL_UNLOCKED } from './game/constants';
 import {
-  loadBestSnacks,
-  loadEquippedItems,
-  loadMaxUnlockedStage,
-  loadUnlockedItems,
-  saveBestSnacks,
-  saveEquippedItems,
-  saveMaxUnlockedStage,
-  saveUnlockedItems,
+  loadProgress,
+  saveProgress,
 } from './game/storage';
+import {
+  initCloud,
+  onCloudUserChanged,
+  saveProgressToCloud,
+  sendPasswordReset,
+  signInWithEmail,
+  signInWithGoogle,
+  signOutUser,
+  signUpWithEmail,
+  syncProgressWithCloud,
+  type CloudUser,
+} from './game/firebaseCloud';
 import { getStage, stages } from './game/levelData';
-import type { CustomItemId, GameSnapshot, Screen } from './game/types';
+import type { CustomItemId, GameSnapshot, PuppyProgress, Screen } from './game/types';
 
 const unlockRewards: CustomItemId[] = CUSTOM_ITEMS.map((item) => item.id).filter((id) => !INITIAL_UNLOCKED.includes(id));
+
+type CloudState = {
+  user: CloudUser | null;
+  syncing: boolean;
+  message: string;
+};
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('start');
   const [stageIndex, setStageIndex] = useState(0);
-  const [maxUnlockedStage, setMaxUnlockedStage] = useState(() => Math.min(loadMaxUnlockedStage(), stages.length - 1));
-  const [equippedItems, setEquippedItems] = useState<CustomItemId[]>(() => loadEquippedItems());
-  const [unlockedItems, setUnlockedItems] = useState<CustomItemId[]>(() => {
-    const loaded = loadUnlockedItems();
-    return Array.from(new Set([...INITIAL_UNLOCKED, ...loaded]));
+  const [progress, setProgress] = useState<PuppyProgress>(() => {
+    const loaded = loadProgress();
+    return {
+      ...loaded,
+      maxUnlockedStage: Math.min(loaded.maxUnlockedStage, stages.length - 1),
+    };
   });
-  const [bestSnacks, setBestSnacks] = useState(() => loadBestSnacks());
+  const [cloud, setCloud] = useState<CloudState>({
+    user: null,
+    syncing: true,
+    message: '로그인 상태 확인 중',
+  });
+  const progressRef = useRef(progress);
+  const cloudUserRef = useRef<CloudUser | null>(null);
+  const maxUnlockedStage = progress.maxUnlockedStage;
+  const equippedItems = progress.equippedItems;
+  const unlockedItems = progress.unlockedItems;
+  const bestSnacks = progress.bestSnacks;
   const [lastResult, setLastResult] = useState<GameSnapshot>({
     snacks: 0,
     health: 5,
@@ -44,6 +69,72 @@ export default function App() {
     [equippedItems, unlockedItems],
   );
 
+  useEffect(() => {
+    if (!cloud.user && !['start', 'login', 'settings'].includes(screen)) {
+      setScreen('start');
+    }
+  }, [cloud.user, screen]);
+
+  useEffect(() => {
+    progressRef.current = progress;
+  }, [progress]);
+
+  useEffect(() => {
+    let alive = true;
+
+    initCloud().then((result) => {
+      if (!alive) return;
+      if (!result.available) {
+        setCloud({ user: null, syncing: false, message: '클라우드 연결을 준비하지 못했어요' });
+      }
+    });
+
+    return onCloudUserChanged(async (user) => {
+      if (!alive) return;
+      cloudUserRef.current = user;
+
+      if (!user) {
+        setCloud({ user: null, syncing: false, message: '로그인하면 시작할 수 있어요' });
+        return;
+      }
+
+      setCloud({ user, syncing: true, message: '기록 동기화 중' });
+      const result = await syncProgressWithCloud(progressRef.current);
+      if (!alive) return;
+
+      if (result.ok && result.progress) {
+        setProgress(result.progress);
+        setCloud({ user, syncing: false, message: '다른 기기와 기록 보관 중' });
+        return;
+      }
+
+      setCloud({ user, syncing: false, message: '기록은 저장됐고 동기화는 다시 시도할게요' });
+    });
+  }, []);
+
+  const saveProgressChange = useCallback((changes: Partial<PuppyProgress>) => {
+    const nextProgress = saveProgress({
+      ...progressRef.current,
+      ...changes,
+      updatedAt: new Date().toISOString(),
+    });
+    progressRef.current = nextProgress;
+    setProgress(nextProgress);
+
+    if (cloudUserRef.current) {
+      setCloud((current) => ({ ...current, syncing: true, message: '기록 저장 중' }));
+      saveProgressToCloud(nextProgress).then((result) => {
+        setCloud((current) => ({
+          ...current,
+          syncing: false,
+          message: result.ok ? '다른 기기와 기록 보관 중' : '기록은 저장됐고 동기화는 다시 시도할게요',
+        }));
+      });
+    }
+
+    return nextProgress;
+  }, []);
+
   const chooseItem = (item: CustomItemId) => {
     if (!unlockedItems.includes(item)) return;
     const customItem = CUSTOM_ITEMS.find((entry) => entry.id === item);
@@ -52,35 +143,32 @@ export default function App() {
       customItem.slot === 'none'
         ? []
         : [...equippedItems.filter((equipped) => CUSTOM_ITEMS.find((entry) => entry.id === equipped)?.slot !== customItem.slot), item];
-    setEquippedItems(nextItems);
-    saveEquippedItems(nextItems);
+    saveProgressChange({ equippedItems: nextItems });
   };
 
   const handleClear = useCallback(
     (snapshot: GameSnapshot) => {
       const nextBest = Math.max(bestSnacks, snapshot.snacks);
-      setBestSnacks(nextBest);
-      saveBestSnacks(nextBest);
       setLastResult({ ...snapshot, bestSnacks: nextBest });
+      let nextUnlocked = unlockedItems;
 
       if (snapshot.ribbonFound) {
         const nextReward = unlockRewards.find((item) => !unlockedItems.includes(item));
         if (nextReward) {
-          const nextUnlocked = [...unlockedItems, nextReward];
-          setUnlockedItems(nextUnlocked);
-          saveUnlockedItems(nextUnlocked);
+          nextUnlocked = [...unlockedItems, nextReward];
         }
       }
 
       const nextUnlockedStage = Math.min(stages.length - 1, stageIndex + 1);
-      if (nextUnlockedStage > maxUnlockedStage) {
-        setMaxUnlockedStage(nextUnlockedStage);
-        saveMaxUnlockedStage(nextUnlockedStage);
-      }
+      saveProgressChange({
+        bestSnacks: nextBest,
+        unlockedItems: nextUnlocked,
+        maxUnlockedStage: Math.max(maxUnlockedStage, nextUnlockedStage),
+      });
 
       setScreen('clear');
     },
-    [bestSnacks, maxUnlockedStage, stageIndex, unlockedItems],
+    [bestSnacks, maxUnlockedStage, saveProgressChange, stageIndex, unlockedItems],
   );
 
   const handleFail = useCallback((snapshot: GameSnapshot) => {
@@ -89,6 +177,11 @@ export default function App() {
   }, []);
 
   const startGame = () => {
+    if (!cloudUserRef.current) {
+      setCloud((current) => ({ ...current, message: '먼저 로그인해 주세요' }));
+      setScreen('login');
+      return;
+    }
     setScreen('stage-select');
   };
 
@@ -107,11 +200,100 @@ export default function App() {
     setScreen('math-gate');
   };
 
+  const handleCloudLogin = async () => {
+    setCloud((current) => ({ ...current, syncing: true, message: 'Google 로그인 중' }));
+    const result = await signInWithGoogle();
+    if (!result.ok) {
+      setCloud((current) => ({ ...current, syncing: false, message: '로그인이 취소되었거나 실패했어요' }));
+      return false;
+    }
+    setScreen('start');
+    return true;
+  };
+
+  const handleEmailSignIn = async (email: string, password: string) => {
+    setCloud((current) => ({ ...current, syncing: true, message: '이메일 로그인 중' }));
+    const result = await signInWithEmail(email, password);
+    if (!result.ok) {
+      setCloud((current) => ({ ...current, syncing: false, message: result.message || '이메일 로그인을 다시 확인해 주세요' }));
+      return false;
+    }
+    setScreen('start');
+    return true;
+  };
+
+  const handleEmailSignUp = async (email: string, password: string) => {
+    setCloud((current) => ({ ...current, syncing: true, message: '이메일 가입 중' }));
+    const result = await signUpWithEmail(email, password);
+    if (!result.ok) {
+      setCloud((current) => ({ ...current, syncing: false, message: result.message || '가입 정보를 다시 확인해 주세요' }));
+      return false;
+    }
+    setScreen('start');
+    return true;
+  };
+
+  const handlePasswordReset = async (email: string) => {
+    setCloud((current) => ({ ...current, syncing: true, message: '비밀번호 재설정 메일 준비 중' }));
+    const result = await sendPasswordReset(email);
+    setCloud((current) => ({
+      ...current,
+      syncing: false,
+      message: result.ok ? '비밀번호 재설정 메일을 보냈어요' : result.message || '이메일 주소를 확인해 주세요',
+    }));
+    return result.ok;
+  };
+
+  const handleCloudLogout = async () => {
+    setCloud((current) => ({ ...current, syncing: true, message: '로그아웃 중' }));
+    const result = await signOutUser();
+    if (!result.ok) {
+      setCloud((current) => ({ ...current, syncing: false, message: '로그아웃을 다시 시도해 주세요' }));
+    }
+    setScreen('start');
+  };
+
   return (
     <main className="app-shell">
       <div className="phone-frame">
         {screen === 'start' && (
-          <StartScreen equippedItems={equippedSafe} bestSnacks={bestSnacks} onStart={startGame} onCustomize={() => setScreen('customize')} />
+          <StartScreen
+            equippedItems={equippedSafe}
+            bestSnacks={bestSnacks}
+            cloud={cloud}
+            onLogin={() => setScreen('login')}
+            onSettings={() => setScreen('settings')}
+            onStart={startGame}
+            onCustomize={() => {
+              if (!cloudUserRef.current) {
+                setCloud((current) => ({ ...current, message: '먼저 로그인해 주세요' }));
+                setScreen('login');
+                return;
+              }
+              setScreen('customize');
+            }}
+          />
+        )}
+        {screen === 'login' && (
+          <LoginScreen
+            syncing={cloud.syncing}
+            message={cloud.message}
+            onBack={() => setScreen('start')}
+            onGoogle={handleCloudLogin}
+            onEmailSignIn={handleEmailSignIn}
+            onEmailSignUp={handleEmailSignUp}
+            onPasswordReset={handlePasswordReset}
+          />
+        )}
+        {screen === 'settings' && (
+          <SettingsScreen
+            user={cloud.user}
+            syncing={cloud.syncing}
+            message={cloud.message}
+            onBack={() => setScreen('start')}
+            onLogout={handleCloudLogout}
+            onLogin={() => setScreen('login')}
+          />
         )}
         {screen === 'stage-select' && (
           <StageSelectScreen maxUnlockedStage={maxUnlockedStage} onSelect={selectStage} onBack={() => setScreen('start')} />
