@@ -9,7 +9,6 @@ const DAN_VALUES = [2, 3, 4, 5, 6, 7, 8, 9];
 const MULTIPLIERS = [2, 3, 4, 5, 6, 7, 8, 9];
 
 export const GATE_QUESTION_COUNT = 5;
-export const GATE_SECONDS = 7;
 
 export function createGateQuestions(stageId: number, count = GATE_QUESTION_COUNT) {
   const allQuestions = DAN_VALUES.flatMap((dan) =>

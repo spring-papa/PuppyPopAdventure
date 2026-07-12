@@ -1745,24 +1745,6 @@ h2 {
   transform: scale(0.92);
 }
 
-.math-timer {
-  width: 100%;
-  height: 14px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: rgba(255, 220, 235, 0.72);
-  box-shadow: inset 0 2px 0 rgba(123, 82, 109, 0.08);
-}
-
-.math-timer span {
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform-origin: left center;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #8deca1, #ffe983, #ff7fae);
-}
-
 .math-expression {
   width: 100%;
   min-height: 76px;
@@ -2015,10 +1997,6 @@ h2 {
 
   .math-gate-puppy .puppy {
     transform: scale(0.62);
-  }
-
-  .math-timer {
-    height: 10px;
   }
 
   .math-expression {

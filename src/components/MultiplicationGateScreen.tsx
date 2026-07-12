@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { createGateQuestions, GATE_SECONDS } from '../game/multiplicationGate';
+import { useMemo, useState, type CSSProperties } from 'react';
+import { createGateQuestions } from '../game/multiplicationGate';
 import type { CustomItemId, StageData } from '../game/types';
 import Puppy from './Puppy';
 
@@ -22,37 +22,17 @@ export default function MultiplicationGateScreen({
   const [questionIndex, setQuestionIndex] = useState(0);
   const [input, setInput] = useState('');
   const [status, setStatus] = useState<GateStatus>('playing');
-  const [timeRatio, setTimeRatio] = useState(1);
   const questions = useMemo(() => createGateQuestions(stage.id), [stage.id, round]);
   const question = questions[questionIndex];
   const answerLength = String(question.answer).length;
   const slots = Array.from({ length: answerLength }, (_, index) => input[index] ?? '');
   const progressText = `${questionIndex + 1} / ${questions.length}`;
 
-  useEffect(() => {
-    if (status !== 'playing') return undefined;
-
-    const startedAt = Date.now();
-    setTimeRatio(1);
-    const timer = window.setInterval(() => {
-      const elapsed = (Date.now() - startedAt) / 1000;
-      const nextRatio = Math.max(0, 1 - elapsed / GATE_SECONDS);
-      setTimeRatio(nextRatio);
-      if (nextRatio <= 0) {
-        window.clearInterval(timer);
-        setStatus('failed');
-      }
-    }, 50);
-
-    return () => window.clearInterval(timer);
-  }, [question.id, status]);
-
   const resetGate = () => {
     setRound((value) => value + 1);
     setQuestionIndex(0);
     setInput('');
     setStatus('playing');
-    setTimeRatio(1);
   };
 
   const advanceQuestion = () => {
@@ -109,10 +89,6 @@ export default function MultiplicationGateScreen({
       <div className="math-gate-panel">
         <div className="math-gate-puppy">
           <Puppy items={equippedItems} moving={status === 'cleared'} mood={status === 'failed' ? 'rest' : 'happy'} />
-        </div>
-
-        <div className="math-timer" aria-label="남은 시간">
-          <span style={{ transform: `scaleX(${timeRatio})` }} />
         </div>
 
         <div className="math-expression" aria-live="polite">
