@@ -1746,32 +1746,6 @@ h2 {
   transform: scale(0.92);
 }
 
-.math-gate-copy {
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-  text-align: center;
-}
-
-.math-gate-copy p {
-  margin: 0;
-  color: var(--soft-ink);
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.math-gate-rival {
-  display: inline-flex;
-  align-items: center;
-  min-height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: #fff0a8;
-  color: #805a33;
-  font-size: 14px;
-  font-weight: 950;
-}
-
 .math-timer {
   width: 100%;
   height: 14px;
@@ -2040,15 +2014,6 @@ h2 {
 
   .math-gate-puppy .puppy {
     transform: scale(0.62);
-  }
-
-  .math-gate-rival {
-    min-height: 24px;
-    font-size: 12px;
-  }
-
-  .math-gate-copy p {
-    font-size: 14px;
   }
 
   .math-timer {

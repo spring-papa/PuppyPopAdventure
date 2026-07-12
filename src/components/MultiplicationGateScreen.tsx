@@ -110,10 +110,6 @@ export default function MultiplicationGateScreen({
         <div className="math-gate-puppy">
           <Puppy items={equippedItems} moving={status === 'cleared'} mood={status === 'failed' ? 'rest' : 'happy'} />
         </div>
-        <div className="math-gate-copy">
-          <span className="math-gate-rival">허약 레몬이 속도</span>
-          <p>{status === 'failed' ? '앗, 다시 풀고 출발하자!' : status === 'cleared' ? '좋아, 길이 열렸어!' : '맞히면 산책길이 열려요.'}</p>
-        </div>
 
         <div className="math-timer" aria-label="남은 시간">
           <span style={{ transform: `scaleX(${timeRatio})` }} />
