@@ -1,4 +1,4 @@
-export type Screen = 'start' | 'stage-select' | 'game' | 'customize' | 'clear' | 'fail';
+export type Screen = 'start' | 'stage-select' | 'math-gate' | 'game' | 'customize' | 'clear' | 'fail';
 
 export type CustomItemId = string;
 

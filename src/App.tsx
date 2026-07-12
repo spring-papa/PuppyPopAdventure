@@ -3,6 +3,7 @@ import ClearScreen from './components/ClearScreen';
 import CustomizeScreen from './components/CustomizeScreen';
 import FailScreen from './components/FailScreen';
 import GameScreen from './components/GameScreen';
+import MultiplicationGateScreen from './components/MultiplicationGateScreen';
 import StageSelectScreen from './components/StageSelectScreen';
 import StartScreen from './components/StartScreen';
 import { CUSTOM_ITEMS, INITIAL_UNLOCKED } from './game/constants';
@@ -94,16 +95,16 @@ export default function App() {
   const selectStage = (index: number) => {
     if (index > maxUnlockedStage) return;
     setStageIndex(index);
-    setScreen('game');
+    setScreen('math-gate');
   };
 
   const nextStage = () => {
     setStageIndex((index) => (index + 1) % stages.length);
-    setScreen('game');
+    setScreen('math-gate');
   };
 
   const replayStage = () => {
-    setScreen('game');
+    setScreen('math-gate');
   };
 
   return (
@@ -114,6 +115,15 @@ export default function App() {
         )}
         {screen === 'stage-select' && (
           <StageSelectScreen maxUnlockedStage={maxUnlockedStage} onSelect={selectStage} onBack={() => setScreen('start')} />
+        )}
+        {screen === 'math-gate' && (
+          <MultiplicationGateScreen
+            key={`math-${stageIndex}`}
+            equippedItems={equippedSafe}
+            stage={getStage(stageIndex)}
+            onPass={() => setScreen('game')}
+            onBack={() => setScreen('stage-select')}
+          />
         )}
         {screen === 'customize' && (
           <CustomizeScreen
