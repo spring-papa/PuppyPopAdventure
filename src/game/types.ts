@@ -74,11 +74,13 @@ export type GameSnapshot = {
 };
 
 export type PuppyProgress = {
-  schemaVersion: 1;
+  schemaVersion: 2;
   maxUnlockedStage: number;
   unlockedItems: CustomItemId[];
   equippedItems: CustomItemId[];
   bestSnacks: number;
+  dailyPlayDate: string;
+  dailyPlayCount: number;
   updatedAt: string;
 };
 

@@ -4,6 +4,8 @@ import type { CustomItemId } from '../game/types';
 export default function StartScreen({
   equippedItems,
   bestSnacks,
+  dailyPlayCount,
+  dailyPlayLimit,
   cloud,
   onLogin,
   onSettings,
@@ -12,6 +14,8 @@ export default function StartScreen({
 }: {
   equippedItems: CustomItemId[];
   bestSnacks: number;
+  dailyPlayCount: number;
+  dailyPlayLimit: number;
   cloud: {
     user: { displayName: string; email: string } | null;
     syncing: boolean;
@@ -23,6 +27,7 @@ export default function StartScreen({
   onCustomize: () => void;
 }) {
   const signedIn = Boolean(cloud.user);
+  const dailyLimitReached = dailyPlayCount >= dailyPlayLimit;
 
   return (
     <section className="screen start-screen flower-town">
@@ -38,13 +43,15 @@ export default function StartScreen({
           <Puppy items={equippedItems} />
         </div>
         <p className="speech-bubble">몽실이랑 간식 찾으러 가자!</p>
-        <div className="start-best">최고 간식 {bestSnacks}개</div>
-        <p className="start-cloud-status">{cloud.message}</p>
+        <div className="start-best">최고 간식 {bestSnacks} · 오늘 {dailyPlayCount}/{dailyPlayLimit}회</div>
+        <p className="start-cloud-status">
+          {dailyLimitReached ? '오늘 모험을 모두 했어요. 내일 다시 만나요!' : cloud.message}
+        </p>
         <div className="primary-actions">
           {signedIn ? (
             <>
-              <button className="soft-button primary" onClick={onStart} disabled={cloud.syncing}>
-                시작하기
+              <button className="soft-button primary" onClick={onStart} disabled={cloud.syncing || dailyLimitReached}>
+                {dailyLimitReached ? '오늘 모험 완료' : '시작하기'}
               </button>
               <button className="soft-button secondary" onClick={onCustomize} disabled={cloud.syncing}>
                 꾸미기

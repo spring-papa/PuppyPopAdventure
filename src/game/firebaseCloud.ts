@@ -149,11 +149,13 @@ const mergeProgress = (localProgress: PuppyProgress, cloudProgress: PuppyProgres
   const equippedItems = latest.equippedItems.filter((item) => unlockedItems.includes(item));
 
   return normalizeProgress({
-    schemaVersion: 1,
+    schemaVersion: 2,
     maxUnlockedStage: Math.min(stages.length - 1, Math.max(localProgress.maxUnlockedStage, cloudProgress.maxUnlockedStage)),
     unlockedItems,
     equippedItems,
     bestSnacks: Math.max(localProgress.bestSnacks, cloudProgress.bestSnacks),
+    dailyPlayDate: localProgress.dailyPlayDate,
+    dailyPlayCount: Math.max(localProgress.dailyPlayCount, cloudProgress.dailyPlayCount),
     updatedAt: latest.updatedAt,
   });
 };
@@ -164,6 +166,8 @@ const toCloudProgress = (progress: PuppyProgress) => ({
   unlockedItems: progress.unlockedItems,
   equippedItems: progress.equippedItems,
   bestSnacks: progress.bestSnacks,
+  dailyPlayDate: progress.dailyPlayDate,
+  dailyPlayCount: progress.dailyPlayCount,
   updatedAt: progress.updatedAt,
   savedAt: serverTimestamp(),
 });

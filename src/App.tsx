@@ -12,6 +12,8 @@ import StageSelectScreen from './components/StageSelectScreen';
 import StartScreen from './components/StartScreen';
 import { CUSTOM_ITEMS, INITIAL_UNLOCKED } from './game/constants';
 import {
+  DAILY_PLAY_LIMIT,
+  getLocalDateKey,
   loadProgress,
   saveProgress,
 } from './game/storage';
@@ -41,6 +43,7 @@ type CloudState = {
 export default function App() {
   const [screen, setScreen] = useState<Screen>('start');
   const [stageIndex, setStageIndex] = useState(0);
+  const [today, setToday] = useState(getLocalDateKey);
   const [progress, setProgress] = useState<PuppyProgress>(() => {
     const loaded = loadProgress();
     return {
@@ -59,6 +62,8 @@ export default function App() {
   const equippedItems = progress.equippedItems;
   const unlockedItems = progress.unlockedItems;
   const bestSnacks = progress.bestSnacks;
+  const dailyPlayCount = progress.dailyPlayDate === today ? progress.dailyPlayCount : 0;
+  const dailyLimitReached = dailyPlayCount >= DAILY_PLAY_LIMIT;
   const [lastResult, setLastResult] = useState<GameSnapshot>({
     snacks: 0,
     health: 5,
@@ -80,6 +85,19 @@ export default function App() {
   useEffect(() => {
     progressRef.current = progress;
   }, [progress]);
+
+  useEffect(() => {
+    const refreshDate = () => setToday(getLocalDateKey());
+    const intervalId = window.setInterval(refreshDate, 60_000);
+    window.addEventListener('focus', refreshDate);
+    document.addEventListener('visibilitychange', refreshDate);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshDate);
+      document.removeEventListener('visibilitychange', refreshDate);
+    };
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -184,22 +202,56 @@ export default function App() {
       setScreen('login');
       return;
     }
+    if (dailyLimitReached) {
+      return;
+    }
     setScreen('stage-select');
   };
 
   const selectStage = (index: number) => {
     if (index > maxUnlockedStage) return;
+    if (dailyLimitReached) {
+      setScreen('start');
+      return;
+    }
     setStageIndex(index);
     setScreen('math-gate');
   };
 
   const nextStage = () => {
+    if (dailyLimitReached) {
+      setScreen('start');
+      return;
+    }
     setStageIndex((index) => (index + 1) % stages.length);
     setScreen('math-gate');
   };
 
   const replayStage = () => {
+    if (dailyLimitReached) {
+      setScreen('start');
+      return;
+    }
     setScreen('math-gate');
+  };
+
+  const handleMathGatePass = () => {
+    const current = progressRef.current;
+    const currentDate = getLocalDateKey();
+    const playCount = current.dailyPlayDate === currentDate ? current.dailyPlayCount : 0;
+
+    if (playCount >= DAILY_PLAY_LIMIT) {
+      setToday(currentDate);
+      setScreen('start');
+      return;
+    }
+
+    setToday(currentDate);
+    saveProgressChange({
+      dailyPlayDate: currentDate,
+      dailyPlayCount: playCount + 1,
+    });
+    setScreen('game');
   };
 
   const handleCloudLogin = async () => {
@@ -262,6 +314,8 @@ export default function App() {
           <StartScreen
             equippedItems={equippedSafe}
             bestSnacks={bestSnacks}
+            dailyPlayCount={dailyPlayCount}
+            dailyPlayLimit={DAILY_PLAY_LIMIT}
             cloud={cloud}
             onLogin={() => setScreen('login')}
             onSettings={() => setScreen('settings')}
@@ -305,7 +359,7 @@ export default function App() {
             key={`math-${stageIndex}`}
             equippedItems={equippedSafe}
             stage={getStage(stageIndex)}
-            onPass={() => setScreen('game')}
+            onPass={handleMathGatePass}
             onBack={() => setScreen('stage-select')}
           />
         )}

@@ -16,12 +16,23 @@ const readJson = <T,>(key: string, fallback: T): T => {
 
 const uniqueItems = (items: CustomItemId[]) => Array.from(new Set(items.filter(Boolean)));
 
+export const DAILY_PLAY_LIMIT = 10;
+
+export const getLocalDateKey = (date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const createDefaultProgress = (): PuppyProgress => ({
-  schemaVersion: 1,
+  schemaVersion: 2,
   maxUnlockedStage: 0,
   unlockedItems: [...INITIAL_UNLOCKED],
   equippedItems: ['red-ribbon'],
   bestSnacks: 0,
+  dailyPlayDate: getLocalDateKey(),
+  dailyPlayCount: 0,
   updatedAt: new Date().toISOString(),
 });
 
@@ -31,13 +42,19 @@ export const normalizeProgress = (progress: Partial<PuppyProgress> | null | unde
   const equippedItems = uniqueItems(Array.isArray(progress?.equippedItems) ? progress.equippedItems : fallback.equippedItems).filter((item) =>
     unlockedItems.includes(item),
   );
+  const today = getLocalDateKey();
+  const isToday = progress?.dailyPlayDate === today;
 
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     maxUnlockedStage: Math.max(0, Number(progress?.maxUnlockedStage ?? fallback.maxUnlockedStage)),
     unlockedItems,
     equippedItems,
     bestSnacks: Math.max(0, Number(progress?.bestSnacks ?? fallback.bestSnacks)),
+    dailyPlayDate: today,
+    dailyPlayCount: isToday
+      ? Math.min(DAILY_PLAY_LIMIT, Math.max(0, Math.floor(Number(progress?.dailyPlayCount) || 0)))
+      : 0,
     updatedAt: progress?.updatedAt || fallback.updatedAt,
   };
 };
