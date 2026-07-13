@@ -160,14 +160,11 @@ const makeObstacles = (stage: number): Obstacle[] => {
 
 export const stages: StageData[] = Array.from({ length: 30 }, (_, index) => {
   const id = index + 1;
-  const modeIndex = index % 3;
-  const themeIndex = modeIndex * 10 + Math.floor(index / 3);
-  const mode = modeIndex === 0 ? 'adventure' : modeIndex === 1 ? 'delivery' : 'balloon';
-  const theme = themes[themeIndex];
-  const platforms = makePlatforms(Math.floor(index / 3) + 1);
+  const theme = themes[index];
+  const platforms = makePlatforms(id);
   return {
     id,
-    mode,
+    mode: id <= 10 ? 'adventure' : id <= 20 ? 'delivery' : 'balloon',
     theme: { ...theme, label: `${id}-${theme.label.split('-')[1]}` },
     platforms,
     collectibles: makeCollectibles(id, platforms),
